@@ -47,8 +47,9 @@ int main()
         }
             //sort
         std::sort(my_set, my_set + count);
-        for (int i = 0; i < count;i++)
+        for (int i = 0; i < count-1;i++)
             std::cout << my_set[i] << " ";
+        std::cout << my_set[count-1] << std::endl;
     }
     return 0;
 }
