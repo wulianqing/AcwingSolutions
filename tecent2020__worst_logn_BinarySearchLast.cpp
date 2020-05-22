@@ -1,3 +1,5 @@
+/* worst:O(log n)*/
+
 #include<iostream>
 
 int main(){
@@ -14,16 +16,16 @@ int main(){
     while(left<right){
         //+ 1:Otherwise can not pick the last number when numbers are equal
         mid = left + (right - left) / 2 + 1; 
-        //target is in right part
+        //target is in left part
         if(nums[mid] > target){
             right = mid - 1;
         }
-        //in left part
+        //in right part
         else{
             left = mid;
         }
     }
-    //left == right,maybe not found
+    //left == right, maybe not found
     if(nums[left]==target)
         std::cout << mid << std::endl;
     else

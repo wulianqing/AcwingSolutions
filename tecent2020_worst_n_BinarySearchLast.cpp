@@ -1,3 +1,5 @@
+/*  worst:O(n/2) */
+
 #include<iostream>
 
 int main(){
