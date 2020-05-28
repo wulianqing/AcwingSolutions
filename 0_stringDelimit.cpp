@@ -2,6 +2,7 @@
 #include<string>
 #include<vector>
 #include<sstream>
+#include<iomanip>
 
 using std::cin;
 using std::cout;
@@ -23,6 +24,6 @@ int main(){
     }
 
     for (int i = 0;i<data.size();i++)
-        cout << stoi(data[i]) << endl;
+        cout << std::fixed << std::setprecision(3)<< (double)stoi(data[i]) << endl;
     return 0;
 }
