@@ -24,6 +24,6 @@ int main(){
     }
 
     for (int i = 0;i<data.size();i++)
-        cout << std::fixed << std::setprecision(3)<< (double)stoi(data[i]) << endl;
+        cout << stoi(data[i]) << endl;
     return 0;
 }
