@@ -27,7 +27,6 @@ void createTree(TreeNode *&root){
     //0: NULL
     if(ch_input == 0)
         return;
-    
     else if(ch_input > 0){
         if(root == NULL){
             root = new TreeNode;
