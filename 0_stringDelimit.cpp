@@ -17,7 +17,6 @@ int main(){
     stringstream input(s);
     string temp;
     vector<string> data;
-    cout << s.substr(3, 5) << endl;
 
     while(getline(input,temp,',')){
         data.push_back(temp);
