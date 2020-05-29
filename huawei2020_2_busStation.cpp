@@ -27,8 +27,6 @@ int main(){
         p = strtok(NULL, d);
     }
 
-
-    
     //遍历所有车站
     for (unordered_map<int,int>::iterator it = station.begin(); it != station.end();it++){
         int distance=0;
