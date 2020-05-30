@@ -5,7 +5,7 @@ using namespace std;
 
 class Solution {
 public:
-    void printRound(int left,int right,int up,int down,vector<int> & ans,vector<vector<int>> matrix){
+    void printRound(int left,int right,int up,int down,vector<int> & ans,vector<vector<int> > matrix){
         if(left == right){
             for(int i = up;i<=down;i++){
                 ans.push_back(matrix[i][right]);
