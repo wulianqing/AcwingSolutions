@@ -26,9 +26,9 @@ public:
 
     }
 
-
     //Solution 2: better performance
     //return value -1: not balanced
+    //注意: depth()不止计算该节点深度;若以该节点为root的树不平衡,ans会置为false,可快速结束
     int depth_2(TreeNode *root, bool & ans)
     {
         if(root == NULL)
