@@ -23,7 +23,6 @@ public:
         if(root == NULL)return true;
         else if(abs(depth_1(root->left)-depth_1(root->right))>1) return false;
         else return isBalanced_1(root->left) && isBalanced_1(root->right);
-
     }
 
     //Solution 2: better performance
