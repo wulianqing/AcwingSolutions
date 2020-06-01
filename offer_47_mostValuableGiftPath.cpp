@@ -33,7 +33,7 @@ public:
         //calculate dp table
         for (int i = 0; i < row;i++){
             for (int j = 0; j < col;j++){
-                if(i == 0 && col == 0)dp_table[0][0] = grid[0][0];
+                if(i == 0 && j == 0)dp_table[0][0] = grid[0][0];
                 else if(i == 0)dp_table[i][j] = dp_table[i][j-1] + grid[i][j];
                 else if(j == 0)dp_table[i][j] = dp_table[i-1][j] + grid[i][j];
                 else dp_table[i][j] = max(dp_table[i - 1][j], dp_table[i][j - 1]) + grid[i][j];
