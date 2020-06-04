@@ -9,7 +9,7 @@ public:
         multiset<int> my_set;
         for(int i = 0;i<nums.size();i++){
             my_set.insert(nums[i]);
-            cout << my_set.count(nums[i]) << endl;
+            //cout << my_set.count(nums[i]) << endl;
             if (my_set.count(nums[i]) > nums.size()/2)
                 return nums[i];
         }
