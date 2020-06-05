@@ -12,6 +12,39 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  };
  
+ vector<TreeNode*> string2vector(string data){
+    stringstream input(data.substr(1,data.size()-2));
+    string temp;
+    vector<TreeNode*> v_data;
+    while(getline(input,temp,',')){
+        if(temp == "null"){
+            v_data.push_back(NULL);
+            cout << "push NULL" << endl;
+        }
+        else{
+            v_data.push_back(new TreeNode(stoi(temp)));
+            cout << "push: " << temp << endl;
+        }
+    }
+    //for(int i = 0;i<v_data.size();i++)cout<<v_data[i]<<' ';
+    //cout<<endl;
+    return v_data;
+}
+
+TreeNode* createTree(){
+    int input;
+    cin >> input;
+    if(input == 0)
+        return nullptr;
+    TreeNode *temp = new TreeNode(input);
+    if(input >= 0 && input <= 9){
+        temp->left = createTree();
+        temp->right = createTree();
+    }
+    return temp;
+}
+
+
 class Codec {
 public:
     void tree2Vector(TreeNode* root,vector<string> & v){
@@ -51,53 +84,43 @@ public:
             v.erase(it);
         //output
         cout << "[";
-        for (int i = 0; i < v.size() - 1; i++)
+        s += "[";
+        for (int i = 0; i < v.size() - 1; i++){
             cout << v[i] << ',';
+            s += v[i];
+            s += ',';
+        }
         cout << v[v.size()-1] << "]" << endl;
+        s += v[v.size() - 1];
+        s += ']';
         return s;
     }
+
     // Decodes your encoded data to tree.
     TreeNode* deserialize(string data) {
-        vector<string> v = string2vector(data);
-        static int sta_i;
-        TreeNode *root = createTree(v[sta_i]);
+        vector<TreeNode*> v = string2vector(data);
+        int j = 1;
+        for (int i = 0; i < v.size(); i++){
+            if(v[i] == NULL)
+                continue;
+            if(j < v.size())v[i]->left = v[j++];
+            if(j < v.size())v[i]->right = v[j++];
+        }
+        return v[0];
     }
 };
-
-vector<string> string2vector(string data){
-    stringstream input(data.substr(1,data.size()-2));
-    string temp;
-    vector<string> v_data;
-    while(getline(input,temp,','))v_data.push_back(temp);
-    //for(int i = 0;i<v_data.size();i++)cout<<v_data[i]<<' ';
-    //cout<<endl;
-    return v_data;
-}
-
-TreeNode* createTree(){
-    int input;
-    cin >> input;
-    if(input == 0)
-        return nullptr;
-    TreeNode *temp = new TreeNode(input);
-    if(input >= 0 && input <= 9){
-        temp->left = createTree();
-        temp->right = createTree();
-    }
-    return temp;
-}
 
 
 
 int main(){
-    //cout << "create tree (e.g. 1 2 0 0 3 4 0 0 5 0 0)" << endl;
+    cout << "create tree (e.g. 1 2 0 0 3 4 0 0 5 0 0)" << endl;
     TreeNode *root = createTree();
     Codec solu;
     //string2vector("[1,2,3,null,null,4,5]");
     string s = solu.serialize(root);
-    vector<string>  my_vector = string2vector("[1,2,3,null,null,4,5]");
-    for (int i = 0; i < my_vector.size();i++)
-        cout << my_vector[i] << ' ';
-    cout << endl;
+    cout << "s: "<< s << endl;
+    //TreeNode *my_tree = solu.deserialize("[1,2,3,null,null,4,5]");
+    TreeNode *my_tree = solu.deserialize(s);
+    solu.serialize(my_tree);
     return 0;
 }
