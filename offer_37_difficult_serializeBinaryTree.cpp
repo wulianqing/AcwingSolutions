@@ -83,14 +83,14 @@ public:
         for (vector<string>::iterator it = v.begin()+v.size()-1; *it == "null" && it != v.begin();it--)
             v.erase(it);
         //output
-        cout << "[";
+        //cout << "[";
         s += "[";
         for (int i = 0; i < v.size() - 1; i++){
-            cout << v[i] << ',';
+            //cout << v[i] << ',';
             s += v[i];
             s += ',';
         }
-        cout << v[v.size()-1] << "]" << endl;
+        //cout << v[v.size()-1] << "]" << endl;
         s += v[v.size() - 1];
         s += ']';
         return s;
@@ -109,8 +109,6 @@ public:
         return v[0];
     }
 };
-
-
 
 int main(){
     cout << "create tree (e.g. 1 2 0 0 3 4 0 0 5 0 0)" << endl;
