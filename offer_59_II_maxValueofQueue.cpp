@@ -5,6 +5,9 @@ using namespace std;
 
 class MaxQueue {
 public:
+    deque<int> dq;
+    queue<int> q; //important: use a queue as assistant queue
+public:
     MaxQueue() {
     }
 
@@ -31,10 +34,6 @@ public:
             q.pop();
         return temp;
     }
-
-public:
-    deque<int> dq;
-    queue<int> q;
 };
 
 int main(){
