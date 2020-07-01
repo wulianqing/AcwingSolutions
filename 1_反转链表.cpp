@@ -19,6 +19,9 @@ int main(){
     }
    
     //reverse list
+    //exception: size <= 1
+
+    //size >= 2
     cur_ptr = head->next->next;
     head->next->next = nullptr;
     for (; cur_ptr != nullptr;)
