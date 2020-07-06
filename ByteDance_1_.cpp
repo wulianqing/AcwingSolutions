@@ -28,7 +28,6 @@ int main() {
                 while(s[left] != s[right]){
                     visited[s[left]] = 0;
                     left++;
-                    
                 }
                 left++;
                 right++;
