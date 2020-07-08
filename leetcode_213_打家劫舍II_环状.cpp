@@ -4,6 +4,8 @@ using namespace std;
 class Solution {
 public:
     int rob(vector<int>& nums){
+        if(nums.size() == 0)return 0;
+        if(nums.size() == 1)return nums[0];
         vector<int> nums1;
         vector<int> nums2;
         for (int i = 0; i < nums.size() - 1;i++){
