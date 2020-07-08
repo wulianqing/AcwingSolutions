@@ -16,6 +16,7 @@ public:
             int max_before_length = 0;
             int max_before_j = -1;
             for (int j = i - 1; j >= 0;j--){
+                //可以改成从0到i-1 更新最大的 就不用多设置两个变量
                 //find nums[j] < nums[i] && max nums[j]
                 if (nums[j] < nums[i])
                 {
