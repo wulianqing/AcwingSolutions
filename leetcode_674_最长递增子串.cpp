@@ -26,5 +26,5 @@ int main(){
     Solution solu;
     cout << solu.findLengthOfLCIS(nums1) << endl;
     cout << solu.findLengthOfLCIS(nums2) << endl;
-    return 0;
+    return
 }
