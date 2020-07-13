@@ -20,7 +20,7 @@ public:
         for (int i = 0; i < n; i++)
         {
             if(i == 0)
-                left_max[i] == height[i];
+                left_max[i] = height[i];
             if (i - 1 >= 0 && i + 1 < n)
             {
                 int diff = min(left_max[i - 1], right_max[i + 1]) - height[i];
