@@ -9,25 +9,28 @@ public:
             if(s[i] == '(' || s[i] == '[' || s[i] == '{')
                 my_stack.push(s[i]);
             else if(s[i] == ')' ){
-                if(my_stack.top() == '(')
+                if(!my_stack.empty() && my_stack.top() == '(')
                     my_stack.pop();
                 else
                     return false;
             }
             else if(s[i] == ']' ){
-                if(my_stack.top() == '[')
+                if(!my_stack.empty() && my_stack.top() == '[')
                     my_stack.pop();
                 else
                     return false;
             }
             else if(s[i] == '}' ){
-                if(my_stack.top() == '{')
+                if(!my_stack.empty() && my_stack.top() == '{')
                     my_stack.pop();
                 else
                     return false;
             }
         }
-        return true;
+        if(my_stack.empty())
+            return true;
+        else
+            return false;
     }
 };
 int main(){
