@@ -8,7 +8,7 @@ public:
         if(nums.size() == 0 || nums.size() == 1)
             return;
         int back = 0;
-        while(nums[back] != 0)
+        while(back < nums.size() && nums[back] != 0)
             back++;
         int front = back + 1;
         while (front < nums.size())
