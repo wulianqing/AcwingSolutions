@@ -13,8 +13,8 @@ public:
         sort(nums.begin(), nums.begin() + n);
         int back = 0, front = 1;
         int counter = 0;
-        if(nums[back] != 1)
-            ans.push_back(1);
+        for(int i = 1;i < nums[back];i++)
+            ans.push_back(i);
         while (front < n)
         {
             if(nums[back] == nums[front])
