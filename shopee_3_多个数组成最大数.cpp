@@ -33,13 +33,13 @@ bool cmp(string & a,string & b){
             }
         }
     }
-    //
+    //a长 b短
     else if(a.size() > b.size()){
-        string a_cross = a.substr(0, a.size());
+        string a_cross = a.substr(0, b.size());
         if(b.compare(a_cross) < 0)
-            return a > b;
+            return b < a;
         else if(b.compare(a_cross) > 0)
-            return a < b;
+            return b > a;
         //a_cross == b
         else{
             for (int i = b.size(); i < a.size();i++){
@@ -72,8 +72,10 @@ int main(){
     string ans;
     for (int i = 0; i < nums.size(); i++)
     {
+        cout << nums[i] << ' ';
         ans = ans.append(nums[i]);
     }
+    cout << endl;
     cout << ans << endl;
     return 0;
 }
