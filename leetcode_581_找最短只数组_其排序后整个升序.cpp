@@ -21,10 +21,10 @@ public:
                 left_max[i] = max(left_max[i - 1], nums[i]);
         }
         int i = 0, j = n - 1;
-        while(nums[i] == right_min[i]){
+        while(i < n && nums[i] == right_min[i]){
             i++;
         }
-        while (nums[j] == left_max[j]){
+        while (j >= 0 &&nums[j] == left_max[j]){
             j--;
         }
         if(j > i)
