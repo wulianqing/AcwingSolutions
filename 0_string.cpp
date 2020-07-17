@@ -2,8 +2,8 @@
 #include<string>
 using namespace std;
 int main(){
-    string a = "aaaa";
-    string b = a.substr(1);
-    cout <<"this is:"<< b <<"."<< endl;
+    string a = "abcdefghij";
+    string b = a.substr(4);
+    cout << b << endl;
     return 0;
 }
