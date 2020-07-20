@@ -7,9 +7,12 @@ void quickSort(int* nums,int begin,int end){
         int left = begin;
         int right = end;
         while(left < right){
-            while(left<right && nums[right]>=pivot)right--;
-            while(left<right && nums[left]<=pivot)left++;
-            if(nums[left]>nums[right])swap(nums[left],nums[right]);
+            while(left<right && nums[right]>=pivot)
+                right--;
+            while(left<right && nums[left]<=pivot)
+                left++;
+            if(nums[left]>nums[right])
+                swap(nums[left],nums[right]);
         }
         swap(nums[begin],nums[left]);
         quickSort(nums,begin,left-1);
@@ -30,5 +33,6 @@ int main(){
     for(int i = 0;i<number;i++){
         cout<<nums[i]<<' ';
     }
+    cout << endl;
     return 0;
 }
