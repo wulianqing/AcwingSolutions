@@ -4,38 +4,50 @@ using namespace std;
 struct listNode{
     int data = 0;
     listNode *next = nullptr;
+    listNode(int x) { data = x; }
 };
 
 int main(){
     //build a list
-    listNode* head = new listNode;
-    listNode* cur_ptr = head;
-    for (int i = 1; i <= 5; i++)
-    {
-        listNode *temp = new listNode;
-        temp->data = i;
-        cur_ptr->next = temp;
-        cur_ptr = temp;
+    listNode *head = nullptr;
+    listNode *temp = nullptr;
+    for (int i = 1; i <= 10; i++){
+        if(head == nullptr){
+            temp = new listNode(i);
+            head = temp;
+        }
+        else {
+            temp->next = new listNode(i);
+            temp = temp->next;
+        }
     }
-   
-    //reverse list
-    //exception: size <= 1
 
-    //size >= 2
-    cur_ptr = head->next->next;
-    head->next->next = nullptr;
-    for (; cur_ptr != nullptr;)
-    {
-        listNode *temp = cur_ptr;
-        cur_ptr = cur_ptr->next;
-        temp->next = head->next;
-        head->next = temp;
+    //test list
+    cout << "before: ";
+    temp = head;
+    while(temp->next != nullptr){
+        cout << temp->data << "->";
+        temp = temp->next;
     }
-     //test list
-    
-    for (listNode *cur = head->next; cur != nullptr; cur = cur->next){
-        cout << cur->data << " ";
+
+    cout << temp->data << endl;
+    //reserve
+    listNode *my_list = nullptr;
+    temp = nullptr;
+    while (head != nullptr){
+        temp = head;
+        head = head->next;
+        temp->next = my_list;
+        my_list = temp;
     }
-    cout << endl;
+
+    //test list
+    cout << "reversed: ";
+    temp = my_list;
+    while(temp->next != nullptr){
+        cout << temp->data << "->";
+        temp = temp->next;
+    }
+    cout << temp->data << endl;
     return 0;
 }
