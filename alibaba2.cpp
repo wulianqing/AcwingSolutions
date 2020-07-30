@@ -12,6 +12,11 @@ void dfs(vector<int> & station,int pos,int cur_value,int & max_value){
             max_value = cur_value;
         dfs(station, pos, cur_value, max_value);
     }
+    //如果左边走不通, 则要回来!!!
+    pos++;
+    station[pos]++;
+    cur_value--;
+
     //right
     if(pos <= station.size()-3 && station[pos+1] > 0){
         station[pos+1]--;
