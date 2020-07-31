@@ -8,7 +8,7 @@ int main(){
     for (int i = 0; i < s.size(); i++){
         if(s[i] >= '0' && s[i] <= '9')
             ans = ans + s[i];
-        // /t /n这种
+        
     }
         
     cout << ans << endl;
