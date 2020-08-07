@@ -82,17 +82,12 @@ int main(){
     if(carry == 1){
         if(temp->data + 1 == 10){
             temp->data = 0;
-            carry = 1;
-            temp = temp->next;
+            temp->next = new listNode(1);
         }
         else{
             temp->data++;
             carry = 0;
         }
-
-        //exception: end,if carry == 1
-        if(carry == 1)
-            temp->next = new listNode(1);
     }
 
     //reverse
