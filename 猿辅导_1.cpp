@@ -60,22 +60,40 @@ int main(){
             }
             else
                 temp->data++;
+                
             temp = temp->next;
             continue;
         }
+        //others
         if(carry == 1){
             if(temp->data + 1 == 10){
                 temp->data = 0;
                 carry = 1;
+                temp = temp->next;
+                continue;
             }
             else
-                carry = 0;
+                temp->data++;
         }
+        carry = 0;
         temp = temp->next;
     }
-    //exception: end,if carry == 1
-    if(carry == 1)
-        temp->next = new listNode(1);
+    //the last one of list
+    if(carry == 1){
+        if(temp->data + 1 == 10){
+            temp->data = 0;
+            carry = 1;
+            temp = temp->next;
+        }
+        else{
+            temp->data++;
+            carry = 0;
+        }
+
+        //exception: end,if carry == 1
+        if(carry == 1)
+            temp->next = new listNode(1);
+    }
 
     //reverse
     listNode *recover_list = nullptr;
