@@ -77,6 +77,7 @@ int main()
             else
                 break;
         }
+        continue;
     }
     if(least_value == INT_MAX)
         cout << -1 << endl;

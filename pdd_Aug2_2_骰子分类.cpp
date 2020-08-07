@@ -19,7 +19,7 @@ void go_up(dice & a){
     int temp_5 = a.front;
     int temp_6 = a.back;
     int temp_2 = a.down;
-    int temp_1 = a.up;
+    int temp_1 = a.top;
     a.top = temp_5;
     a.down = temp_6;
     a.front = temp_2;
@@ -29,7 +29,7 @@ void go_down(dice & a){
     int temp_5 = a.front;
     int temp_6 = a.back;
     int temp_2 = a.down;
-    int temp_1 = a.up;
+    int temp_1 = a.top;
     a.top = temp_6;
     a.down = temp_5;
     a.front = temp_1;
@@ -45,7 +45,7 @@ void go_left(dice & a){
     a.front = temp_4;
     a.back = temp_3;
 }
-void go_left(dice & a){
+void go_right(dice & a){
     int temp_5 = a.front;
     int temp_6 = a.back;
     int temp_3 = a.left;
@@ -55,3 +55,7 @@ void go_left(dice & a){
     a.front = temp_3;
     a.back = temp_4;
 }
+int main(){
+    
+}
+
