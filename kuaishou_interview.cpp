@@ -13,7 +13,7 @@ int main(){
     //
     for(int left = 0,right = left + 1;right < s.size();){
         if(s[right] == '.'){
-            reverse(s.begin()+left,s.begin() + right - 1);
+            reverse(s.begin()+left,s.begin() + right);
             left = right + 1;
             right = left + 1;
         }

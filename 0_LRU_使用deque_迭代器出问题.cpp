@@ -62,8 +62,8 @@ public:
             deque<keyValue>::iterator temp = hm[key];
             hm.erase(key);
             q.erase(temp);
-            q.insert(q.begin(), keyValue(key,value)); //!!! 这一步有问题: 应该是deque内部会移动元素内容造成的
-            hm[key] = q.begin();
+            q.push_front(keyValue(key,value)); //!!! 这一步有问题: 应该是deque内部会移动元素内容造成的
+            //hm[key] = q.begin();
             
         }
     }
