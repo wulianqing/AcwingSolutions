@@ -1,7 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<string>
-#include<algorithm>
+#include<algorithm> 
 using namespace std;
 int calculateEnd(vector<vector<int>> & dp,string s,int i,int j){
     if(s[i] != s[j]){
@@ -38,7 +38,7 @@ int main(){
     string temp = s.substr(0, counter);
     reverse(temp.begin(), temp.end());
     s = s + temp;
-    cout << counter << endl;
+    //cout << counter << endl;
     cout << s << endl;
     return 0;
 }
