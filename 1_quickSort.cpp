@@ -7,6 +7,7 @@ void quickSort(int* nums,int begin,int end){
         int left = begin;
         int right = end;
         while(left < right){
+            //注意顺序，先right左移，再left右移
             while(left<right && nums[right]>=pivot)
                 right--;
             while(left<right && nums[left]<=pivot)
