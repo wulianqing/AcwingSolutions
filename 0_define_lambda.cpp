@@ -20,4 +20,8 @@ int main()
     std::cout << (long)((int *)0 + 32) << std::endl;
     long a = (long)((int *)0 + 4);
     std::cout << a << std::endl;
+
+    char arr_c[] = "hello world";
+    char *p_c = arr_c;
+    std::cout << sizeof(p_c) << std::endl;
 }

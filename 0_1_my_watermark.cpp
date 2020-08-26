@@ -2,6 +2,7 @@
 #include<string>
 #include<vector>
 
+//把嵌入信息char*转化为ASCII的比特信息(每个ASCII码8bit)
 std::vector<bool> charStartoBit(char *msg) {
     std::string s = msg;
     int msg_size = s.size();
@@ -16,6 +17,14 @@ std::vector<bool> charStartoBit(char *msg) {
     }
     return bit_msg;
 }
+
+//ASCII比特信息是按从低位到高位存储的 需要做翻转
+std::vector<bool> &  reverseBit(std::vector<bool> & bit_msg){
+    reverse(bit_msg.begin(), bit_msg.end());
+    return bit_msg;
+}
+
+//
 
 void doIt(char* img_path,char* msg_txt){
     //取得bitmap数据__data
@@ -59,6 +68,10 @@ void doIt(char* img_path,char* msg_txt){
     int repeated_msg_txt_size = msg_txt_s.size();
     std::cout << "repeated message size: " << repeated_msg_txt_size * 8 << std::endl;
 
+    //将重复滚动的文本水印信息转化是ASCII的比特信息
+    std::vector<bool> bit_msg = charStartoBit(const_cast<char*>(msg_txt_s.c_str()));
+    reverseBit(bit_msg);
+
     //将__data的蓝色分量转入matrix
     std::vector<std::vector<char>> blue_matrix(my_img.height, std::vector<char>(my_img.width, 0));
     for (int i = 0; i < my_img.height;i++)
@@ -90,13 +103,16 @@ int main(){
     //std::cin >> img_path >> msg_txt;
     //doIt(img_path, msg_txt);
 
+    /* 测试将字符串 -> ASCII的比特信息
     char *msg = "hello";
     std::vector<bool> bit_msg = charStartoBit(msg);
-    for (int i = 0; i < bit_msg.size();i++)
+    reverseBit(bit_msg);
+    for (int i = 0; i < bit_msg.size(); i++)
     {
         std::cout << bit_msg[i] << ' ';
         if((i + 1) % 8 == 0)
             std::cout << std::endl;
     }
+    */
     return 0;
 }
