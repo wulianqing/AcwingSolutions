@@ -24,14 +24,28 @@ std::vector<bool> &  reverseBit(std::vector<bool> & bit_msg){
     return bit_msg;
 }
 
-//
+//将水印信息滚动重复到指定图像的最大嵌入容量
+char* enlargeMessage(char* msg_txt,int img_capacity){
+    std::string msg_txt_s = msg_txt;
+    int msg_size = msg_txt_s.size();        
+    int msg_bit_size = msg_size * 8;
+    //嵌入信息不断重复滚动，直到达到最大容量（可防止几何切割）
+    //可重复 max_embedd_capacity / msg_bit_size 次
+    for (int i = 0; i < img_capacity / msg_bit_size;i++)
+        msg_txt_s += msg_txt_s;
+    return const_cast<char *>(msg_txt_s.c_str());
+}
 
+
+
+//执行函数
 void doIt(char* img_path,char* msg_txt){
     //取得bitmap数据__data
     //图像
     
     bmp::bitbmp my_img;
     my_img.read(img_path);
+    //输出image信息
     std::cout << "image height: " << my_img.height << std::endl
               << "image width: " << my_img.width << std::endl
               << "image bits: " << my_img.info.biBitCount << std::endl;
@@ -45,31 +59,18 @@ void doIt(char* img_path,char* msg_txt){
               << "image bits: " << my_msg_bmp.info.biBitCount << std::endl;
     */
 
-    std::string msg_txt_s = msg_txt;
-    int msg_size = msg_txt_s.size();        
-    int msg_bit_size = msg_size * 8;
-    std::cout << "message size: " << msg_size << std::endl
-              << "bits of message: " << msg_bit_size << std::endl;
-
     //计算最大嵌入容量
     int max_embedd_capacity = my_img.height / 8 * my_img.width / 8;
 
-    //判断水印是否超过最大嵌入容量
-    if(max_embedd_capacity < msg_bit_size){
+    //判断：水印是否超过最大嵌入容量
+    if(max_embedd_capacity < strlen(msg_txt) * 8){
         std::cout << "message is too large for embedding." << std::endl;
         return;
     }
 
-    //嵌入信息不断重复滚动，直到达到最大容量（可防止几何切割）
-    //可重复 max_embedd_capacity / msg_bit_size 次
-    for (int i = 0; i < max_embedd_capacity / msg_bit_size;i++)
-        msg_txt_s += msg_txt_s;
-
-    int repeated_msg_txt_size = msg_txt_s.size();
-    std::cout << "repeated message size: " << repeated_msg_txt_size * 8 << std::endl;
-
+    char *enlarged_msg_txt = enlargeMessage(msg_txt,max_embedd_capacity);
     //将重复滚动的文本水印信息转化是ASCII的比特信息
-    std::vector<bool> bit_msg = charStartoBit(const_cast<char*>(msg_txt_s.c_str()));
+    std::vector<bool> bit_msg = charStartoBit(enlarged_msg_txt);
     reverseBit(bit_msg);
 
     //将__data的蓝色分量转入matrix
