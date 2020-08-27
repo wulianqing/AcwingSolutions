@@ -60,15 +60,15 @@ void doIt(char* img_path,char* msg_txt){
     */
 
     //计算最大嵌入容量
-    int max_embedd_capacity = my_img.height / 8 * my_img.width / 8;
+    int max_embeded_capacity = my_img.height / 8 * my_img.width / 8;
 
     //判断：水印是否超过最大嵌入容量
-    if(max_embedd_capacity < strlen(msg_txt) * 8){
+    if(max_embeded_capacity < strlen(msg_txt) * 8){
         std::cout << "message is too large for embedding." << std::endl;
         return;
     }
 
-    char *enlarged_msg_txt = enlargeMessage(msg_txt,max_embedd_capacity);
+    char *enlarged_msg_txt = enlargeMessage(msg_txt,max_embeded_capacity);
     //将重复滚动的文本水印信息转化是ASCII的比特信息
     std::vector<bool> bit_msg = charStartoBit(enlarged_msg_txt);
     reverseBit(bit_msg);
@@ -79,16 +79,11 @@ void doIt(char* img_path,char* msg_txt){
         for (int j = 0; j < my_img.width;j++)
             blue_matrix[i][j] = my_img.__data[i * j].Blue;
 
-    //计算分块的定位点（分块大小8*8，定位点为每个分块的左上角像素）
-    int y_block_locator = my_img.height / 8;
-    int x_block_locator = my_img.width / 8;
-    //分块定位表 
-    /*
-    std::vector<std::vector<std::pair<int,int>>> block_locator(y_block_locator,std::vector<std::pair<int,int>>(x_block_locator,0));
-    for (int i = 0; i < y_block_locator;i++)
-        for (int j = 0; j < x_block_locator;j++)
-            block_locator[i][j] = std::make_pair(8 * i, 8 * j);
-    */
+    //遍历蓝色分量矩阵 将8*8分块做dct变换
+    //8*8dct变换中 内嵌4*4
+
+    //
+
 
 
     my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
