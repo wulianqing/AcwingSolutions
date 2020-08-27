@@ -19,8 +19,9 @@ void hello(int num){
 }
 
 int main(){
-    
+    thread t1(hello, 0);
     thread t2(hello, 1);
-    hello(0);
+    //hello(0);
+    t1.join();
     t2.join();
 }
