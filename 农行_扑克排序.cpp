@@ -28,8 +28,6 @@ bool cmp(std::string & a, std::string & b)
 
 class Solution{
     public:
-
-
         std::vector<std::string> getPokerOrder(std::vector<std::string> cards){
             init_ump();
             sort(cards.begin(), cards.end(), cmp);
