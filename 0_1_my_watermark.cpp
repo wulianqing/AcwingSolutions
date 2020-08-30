@@ -26,15 +26,17 @@ std::vector<bool> &  reverseBit(std::vector<bool> & bit_msg){
 }
 
 //将水印信息滚动重复到指定图像的最大嵌入容量
-char* enlargeMessage(char* msg_txt,int img_capacity){
+std::string enlargeMessage(char* msg_txt,int img_capacity){
+    std::string msg_ret;
     std::string msg_txt_s = msg_txt;
     int msg_size = msg_txt_s.size();        
     int msg_bit_size = msg_size * 8;
     //嵌入信息不断重复滚动，直到达到最大容量（可防止几何切割）
     //可重复 max_embedd_capacity / msg_bit_size 次
     for (int i = 0; i < img_capacity / msg_bit_size;i++)
-        msg_txt_s += msg_txt_s;
-    return const_cast<char *>(msg_txt_s.c_str());
+        msg_ret += msg_txt_s;
+    //return const_cast<char *>(msg_ret.c_str());
+    return msg_ret;
 }
 
 //dct变换：生成辅助矩阵A (参数：4或8，表示4*4 和 8*8)
@@ -84,11 +86,59 @@ std::vector<std::vector<double>> matrixMulti(std::vector<std::vector<double>> ma
     return matrix_c;
 }
 
+//遍历蓝色分量矩阵 将8*8分块做dct变换(注意输入的矩阵的元素为char，即8位信息)
+std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> matrix_sum){
+    //matrix for return 
+    std::vector < std::vector<double>> matrix_ret(matrix_sum.size(), std::vector<double>(matrix_sum[0].size(), 1));
+
+    for (int i = 0; 8 * i + 7 < matrix_sum.size();i++)
+        for (int j = 0; 8 * j + 7 < matrix_sum[0].size();j++){
+            //8*8dct变换中 内嵌4*4
+            std::vector<std::vector<double>> matrix_x(8, std::vector<double>(8, 0));
+            for (int k = 0; k < 8;k++)
+                for (int l = 0; l < 8;l++){
+                    //其中一个分块
+                    matrix_x[k][l] = matrix_sum[8 * i + k][8 * j + l];
+
+                    //dct一级分解：8 * 8
+                    std::vector<std::vector<double>> matrix_a_8 = createMatrixA(8);
+                    std::vector<std::vector<double>> matrix_a_t_8 = createMatrixAT(matrix_a_8);
+                    std::vector<std::vector<double>> matrix_y_8 = matrixMulti(matrixMulti(matrix_a_8, matrix_x), matrix_a_t_8);
+                    
+                    /*
+                    //dct二级分解：4 * 4
+                    std::vector<std::vector<double>> matrix_a_4 = createMatrixA(4);
+                    std::vector<std::vector<double>> matrix_a_t_4 = createMatrixAT(matrix_a_4);
+                    //分解matrix_y_8的[0][1],[1][0],[1][1]
+                    for (int m = 0; m < 2;m++)
+                        for (int n = 0; n < 2;n++){
+                            //[0][0]不用处理
+                            if(m == 0 && n == 0)
+                                continue;
+                            else{
+                                //matrix_y_8其中一块4 * 4分块
+                                std::vector<std::vector<double>> matrix_xx(4, std::vector<double>(4, 0));
+                                for (int o = 0; o < 4;o++)
+                                    for (int p = 0; p < 4;p++)
+                                        //4 * 4分块
+                                        matrix_xx[o][p] = matrix_y_8[4 * m + o][4 * n + p];
+                                std::vector<std::vector<double>> matrix_yy_4(4, std::vector<double>(4, 0));
+                                matrix_yy_4 = matrixMulti(matrixMulti(matrix_a_4, matrix_xx), matrix_a_t_4);
+                            }
+                        }
+                    */
+                }
+            //8*8分块写回matrix_sum
+            for (int k = 0; k < 8;k++)
+                for (int l = 0; l < 8;l++)
+                    matrix_ret[8 * i + k][8 * j + l] = matrix_x[k][l];
+        }
+    return matrix_ret;
+}
+
 //执行函数
 void doIt(char* img_path,char* msg_txt){
     //取得bitmap数据__data
-    //图像
-    
     bmp::bitbmp my_img;
     my_img.read(img_path);
     //输出image信息
@@ -99,7 +149,7 @@ void doIt(char* img_path,char* msg_txt){
     //水印信息(图像)
     /*
     bmp::bitbmp my_msg_bmp;
-    my_msg_bmp.read("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/t.bmp");
+    my_msg_bmp.read("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/oldmanjourney.bmp");
     std::cout << "image height: " << my_msg_bmp.height << std::endl
               << "image width: " << my_msg_bmp.width << std::endl
               << "image bits: " << my_msg_bmp.info.biBitCount << std::endl;
@@ -114,36 +164,53 @@ void doIt(char* img_path,char* msg_txt){
         return;
     }
 
-    char *enlarged_msg_txt = enlargeMessage(msg_txt,max_embeded_capacity);
+    std::string enlarged_msg_txt = enlargeMessage(msg_txt,max_embeded_capacity);
+    char *c_enlarged_msg_txt = const_cast<char *>(enlarged_msg_txt.c_str());
+    //test msg
+    std::cout << "massage: " << msg_txt << std::endl;
+    //std::cout << "enlarged message: " << enlarged_msg_txt << std::endl;
+
     //将重复滚动的文本水印信息转化是ASCII的比特信息
-    std::vector<bool> bit_msg = charStartoBit(enlarged_msg_txt);
+    std::vector<bool> bit_msg = charStartoBit(c_enlarged_msg_txt);
     reverseBit(bit_msg);
 
     //将__data的蓝色分量转入matrix
-    std::vector<std::vector<char>> blue_matrix(my_img.height, std::vector<char>(my_img.width, 0));
-    for (int i = 0; i < my_img.height;i++)
-        for (int j = 0; j < my_img.width;j++)
-            blue_matrix[i][j] = my_img.__data[i * j].Blue;
+    std::vector<std::vector<double>> blue_matrix(my_img.height, std::vector<double>(my_img.width, 0));
+    for (int i = 0; i < my_img.height;i++){
+        for (int j = 0; j < my_img.width;j++){
+            blue_matrix[i][j] = (double)my_img.__data[i * j].Blue;
+            //std::cout << blue_matrix[i][j] << " ";
+        }
+        //std::cout << std::endl;
+    }
 
-    //遍历蓝色分量矩阵 将8*8分块做dct变换
-    //8*8dct变换中 内嵌4*4
+    //dct: vector<vector<char>>  ->  vector<vector<double>>
+    std::vector<std::vector<double>> dct_matrix_blue = dct_2_stage(blue_matrix);
 
-    //
-
-
-
-    my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
+    std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
+    for (int i = 0; i < dct_matrix_blue.size();i++){
+        for (int j = 0; j < dct_matrix_blue[0].size();j++){
+            outfile.width(8);
+            outfile << dct_matrix_blue[i][j] << " ";
+        }
+        outfile << std::endl;
+    }
+    outfile.close();
     
+
+    //my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
 }
 
 
 
 int main(){
-    //char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/oldmanjourney.bmp";
-    //char *msg_txt = "To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world";
+    //读图像 读文本
+    char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena.bmp";
+    char *msg_txt = "me";
+    //To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world
     //std::cout << "输入图像路径 和 嵌入文本: " << std::endl;
     //std::cin >> img_path >> msg_txt;
-    //doIt(img_path, msg_txt);
+    doIt(img_path, msg_txt);
 
     /* 测试将字符串 -> ASCII的比特信息
     char *msg = "hello";
@@ -156,8 +223,19 @@ int main(){
             std::cout << std::endl;
     }
     */
-    std::vector<std::vector<double>> m_x = {{61, 19, 50, 20}, {82, 26, 61, 45}, {89, 90, 82, 43}, {93, 59, 53, 97}};
-    std::vector<std::vector<double>> m_a = createMatrixA(4);
+
+    /* 测试dct变换
+    //std::vector<std::vector<double>> m_x = {{61, 19, 50, 20}, {82, 26, 61, 45}, {89, 90, 82, 43}, {93, 59, 53, 97}};
+    std::vector<std::vector<double>> m_x = 
+        {{61,19,50,20,44,144,255,13},
+        {82,26,61,45,28,43,233,41},
+        {89,90,82,43,173,75,21,90},
+        {93,59,53,97,23,43,86,54},
+        {161,49,50,20,44,14,55,13},
+        {182,56,61,47,8,43,33,41},
+        {189,90,65,43,73,175,21,90},
+        {193,59,53,97,23,43,86,54}};
+    std::vector<std::vector<double>> m_a = createMatrixA(8);
     std::vector<std::vector<double>> m_a_t = createMatrixAT(m_a);
     std::vector<std::vector<double>> m_y = matrixMulti(matrixMulti(m_a, m_x), m_a_t);
 
@@ -200,4 +278,6 @@ int main(){
         }
         std::cout << std::endl;
     }
+    */
+
 }
