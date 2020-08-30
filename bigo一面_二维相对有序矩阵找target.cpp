@@ -2,6 +2,7 @@
 #include<vector>
 using namespace std;
 
+//矩阵 每行从左往右递增，每列从上到下递增，找target number
 bool findMatrixNum(vector<vector<int>>& matrix, int number) {
     int i = matrix.size() - 1, j = 0;
     while(i >= 0 && j < matrix[0].size())
@@ -14,5 +15,5 @@ bool findMatrixNum(vector<vector<int>>& matrix, int number) {
 }
 
 int main(){
-    vector<vector<int>> 
+    
 }
