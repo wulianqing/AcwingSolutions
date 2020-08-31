@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #define PI 3.1415926535
+#define BITCAPACITY 4000
 //把嵌入信息char*转化为ASCII的比特信息(每个ASCII码8bit)
 std::vector<bool> charStartoBit(char *msg) {
     std::string s = msg;
@@ -87,54 +88,108 @@ std::vector<std::vector<double>> matrixMulti(std::vector<std::vector<double>> ma
 }
 
 //遍历蓝色分量矩阵 将8*8分块做dct变换(注意输入的矩阵的元素为char，即8位信息)
-std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> matrix_sum){
+std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> matrix_total){
     //matrix for return 
-    std::vector < std::vector<double>> matrix_ret(matrix_sum.size(), std::vector<double>(matrix_sum[0].size(), 1));
-
-    for (int i = 0; 8 * i + 7 < matrix_sum.size();i++)
-        for (int j = 0; 8 * j + 7 < matrix_sum[0].size();j++){
+    //std::vector < std::vector<double>> matrix_ret(matrix_sum.size(), std::vector<double>(matrix_sum[0].size(), 1));
+    int counter = 0; //只需要做最多BITCAPACITY个分块（最多嵌入BITCAPACITYbit）
+    for (int i = 0; 8 * i + 7 < matrix_total.size(); i++)
+        for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
+            //matrix_sum[i][j]指的是某8*8的左上角
+            
             //8*8dct变换中 内嵌4*4
-            std::vector<std::vector<double>> matrix_x(8, std::vector<double>(8, 0));
-            for (int k = 0; k < 8;k++)
-                for (int l = 0; l < 8;l++){
-                    //其中一个分块
-                    matrix_x[k][l] = matrix_sum[8 * i + k][8 * j + l];
-
-                    //dct一级分解：8 * 8
-                    std::vector<std::vector<double>> matrix_a_8 = createMatrixA(8);
-                    std::vector<std::vector<double>> matrix_a_t_8 = createMatrixAT(matrix_a_8);
-                    std::vector<std::vector<double>> matrix_y_8 = matrixMulti(matrixMulti(matrix_a_8, matrix_x), matrix_a_t_8);
-                    
-                    /*
-                    //dct二级分解：4 * 4
-                    std::vector<std::vector<double>> matrix_a_4 = createMatrixA(4);
-                    std::vector<std::vector<double>> matrix_a_t_4 = createMatrixAT(matrix_a_4);
-                    //分解matrix_y_8的[0][1],[1][0],[1][1]
-                    for (int m = 0; m < 2;m++)
-                        for (int n = 0; n < 2;n++){
-                            //[0][0]不用处理
-                            if(m == 0 && n == 0)
-                                continue;
-                            else{
-                                //matrix_y_8其中一块4 * 4分块
-                                std::vector<std::vector<double>> matrix_xx(4, std::vector<double>(4, 0));
-                                for (int o = 0; o < 4;o++)
-                                    for (int p = 0; p < 4;p++)
-                                        //4 * 4分块
-                                        matrix_xx[o][p] = matrix_y_8[4 * m + o][4 * n + p];
-                                std::vector<std::vector<double>> matrix_yy_4(4, std::vector<double>(4, 0));
-                                matrix_yy_4 = matrixMulti(matrixMulti(matrix_a_4, matrix_xx), matrix_a_t_4);
-                            }
-                        }
-                    */
-                }
-            //8*8分块写回matrix_sum
+            std::vector<std::vector<double>> matrix_x_8(8, std::vector<double>(8, 0));//新建8*8初始矩阵
+            //拷贝数据：8 * 8矩阵
             for (int k = 0; k < 8;k++)
                 for (int l = 0; l < 8;l++)
-                    matrix_ret[8 * i + k][8 * j + l] = matrix_x[k][l];
+                    matrix_x_8[k][l] = matrix_total[8 * i + k][8 * j + l];
+
+            //dct一级分解：8 * 8
+            //一级分解完成的矩阵:matrix_y_8
+            std::vector<std::vector<double>> matrix_a_8 = createMatrixA(8);
+            std::vector<std::vector<double>> matrix_a_t_8 = createMatrixAT(matrix_a_8);
+            std::vector<std::vector<double>> matrix_y_8 = matrixMulti(matrixMulti(matrix_a_8, matrix_x_8), matrix_a_t_8);
+                    
+                
+            //取 4 * 4 左上角 低频 matrix_y_8[i][j] 
+            std::vector<std::vector<double>> matrix_xx_4(4, std::vector<double>(4, 0));//新建4*4初始矩阵
+            //拷贝数据：4 * 4矩阵
+            for (int k = 0; k < 4;k++)
+                for (int l = 0; l < 4;l++)
+                    matrix_xx_4[k][l] = matrix_y_8[k][l];
+            
+            //dct二级分解：4 * 4
+            //二级分解完成的矩阵: matrix_yy_4
+            std::vector<std::vector<double>> matrix_a_4 = createMatrixA(4);
+            std::vector<std::vector<double>> matrix_a_t_4 = createMatrixAT(matrix_a_4);
+            std::vector<std::vector<double>> matrix_yy_4 = matrixMulti(matrixMulti(matrix_a_4, matrix_xx_4), matrix_a_t_4);
+            
+            //4*4写入8*8左上角 matrix_xx_4 -> matrix_y_8
+            for (int k = 0; k < 4;k++)
+                for (int l = 0; l < 4;l++)
+                    matrix_y_8[k][l] = matrix_xx_4[k][l];
+
+            //8*8分块写回总矩阵 matrix_y_8 -> matrix_sum
+            for (int k = 0; k < 8;k++)
+                for (int l = 0; l < 8;l++)
+                    matrix_total[8 * i + k][8 * j + l] = matrix_x_8[k][l];
+
+            counter++;
+            if(counter % 100 == 0)
+                std::cout << "decomposed block: " << counter << std::endl;
+            if (counter == BITCAPACITY)
+                return matrix_total;
         }
-    return matrix_ret;
+    return matrix_total;
 }
+
+//嵌入信息：遍历前4000个8*8分块，取左上4*4中LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
+//计算Eb2,Eb3,Eb4
+//排序 -> 引用E1 > E2 > E3
+//根据嵌入信息，算E2偏移值(可写成函数)
+//改变E2对应2*2矩阵的值
+std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> matrix_total){
+    
+    //遍历前BITCAPACITY个8*8矩阵，取左上4*4中的LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
+    int counter = 0;
+    for (int i = 0; 8 * i + 7 < matrix_total.size(); i++){
+        for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
+            //只嵌入前BITCAPACITY个分块
+            if(counter == BITCAPACITY)
+                break;
+            
+            //初始矩阵
+            std::vector<std::vector<double>> b2(2, std::vector<double>(2, 0));
+            std::vector<std::vector<double>> b3(2, std::vector<double>(2, 0));
+            std::vector<std::vector<double>> b4(2, std::vector<double>(2, 0));
+
+            //2*2分块均值：Eb2~Eb4
+            double Eb2 = 0, Eb3 = 0, Eb4 = 0;
+            
+            //拷贝至3个2*2矩阵
+            for (int k = 0; k < 2;k++)
+                for (int l = 0; l < 2;l++){
+                    b2[k][l] = matrix_total[8 * i + k][8 * j + 2 + l];
+                    b3[k][l] = matrix_total[8 * i + 2 + k][8 * j + l];
+                    b4[k][l] = matrix_total[8 * i + 2 + k][8 * j + 2 + l];
+                    Eb2 += b2[k][l];
+                    Eb3 += b3[k][l];
+                    Eb4 += b4[k][l];
+                }
+            Eb2 /= 4;
+            Eb3 /= 4;
+            Eb4 /= 4;
+
+            //排序
+        }
+        if(counter == BITCAPACITY)
+            break;
+    }
+}
+
+
+
+
+
 
 //执行函数
 void doIt(char* img_path,char* msg_txt){
@@ -164,7 +219,8 @@ void doIt(char* img_path,char* msg_txt){
         return;
     }
 
-    std::string enlarged_msg_txt = enlargeMessage(msg_txt,max_embeded_capacity);
+    //最多嵌入BITCAPACITYbit，500Byte 500个char
+    std::string enlarged_msg_txt = enlargeMessage(msg_txt,std::min(max_embeded_capacity,BITCAPACITY));
     char *c_enlarged_msg_txt = const_cast<char *>(enlarged_msg_txt.c_str());
     //test msg
     std::cout << "massage: " << msg_txt << std::endl;
@@ -206,7 +262,7 @@ void doIt(char* img_path,char* msg_txt){
 int main(){
     //读图像 读文本
     char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena.bmp";
-    char *msg_txt = "me";
+    char *msg_txt = "To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world";
     //To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world
     //std::cout << "输入图像路径 和 嵌入文本: " << std::endl;
     //std::cin >> img_path >> msg_txt;
