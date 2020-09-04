@@ -2,8 +2,10 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 #define PI 3.1415926535
 #define BITCAPACITY 4000
+#define MILESTONEPERGROUP 2
 //把嵌入信息char*转化为ASCII的比特信息(每个ASCII码8bit)
 std::vector<bool> charStartoBit(char *msg) {
     std::string s = msg;
@@ -89,9 +91,9 @@ std::vector<std::vector<double>> matrixMulti(std::vector<std::vector<double>> ma
 
 //遍历蓝色分量矩阵 将8*8分块做dct变换(注意输入的矩阵的元素为char，即8位信息)
 std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> matrix_total){
-    //matrix for return 
-    //std::vector < std::vector<double>> matrix_ret(matrix_sum.size(), std::vector<double>(matrix_sum[0].size(), 1));
+    
     int counter = 0; //只需要做最多BITCAPACITY个分块（最多嵌入BITCAPACITYbit）
+
     for (int i = 0; 8 * i + 7 < matrix_total.size(); i++)
         for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
             //matrix_sum[i][j]指的是某8*8的左上角
@@ -134,6 +136,7 @@ std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> ma
                     matrix_total[8 * i + k][8 * j + l] = matrix_x_8[k][l];
 
             counter++;
+
             if(counter % 100 == 0)
                 std::cout << "decomposed block: " << counter << std::endl;
             if (counter == BITCAPACITY)
@@ -147,7 +150,14 @@ std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> ma
 //排序 -> 引用E1 > E2 > E3
 //根据嵌入信息，算E2偏移值(可写成函数)
 //改变E2对应2*2矩阵的值
-std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> matrix_total){
+
+
+//根据bit_msg嵌入信息：通过改变v_Eb_E[1]的值
+std::vector<Eb_E> changeMiddleValue(std::vector<Eb_E> v_Eb_E, bool cur_bit_msg){
+    
+}
+
+std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> matrix_total, std::vector<bool> bit_msg){
     
     //遍历前BITCAPACITY个8*8矩阵，取左上4*4中的LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
     int counter = 0;
@@ -165,7 +175,7 @@ std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> m
             //2*2分块均值：Eb2~Eb4
             double Eb2 = 0, Eb3 = 0, Eb4 = 0;
             
-            //拷贝至3个2*2矩阵
+            //拷贝至3个2*2矩阵 -> 计算Eb2 ～ Eb4
             for (int k = 0; k < 2;k++)
                 for (int l = 0; l < 2;l++){
                     b2[k][l] = matrix_total[8 * i + k][8 * j + 2 + l];
@@ -179,10 +189,21 @@ std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> m
             Eb3 /= 4;
             Eb4 /= 4;
 
-            //排序
+            //Eb_E[0]~[2]：用以记录E均值与2*2分块对应关系
+            std::vector<Eb_E> v_Eb_E(3);
+            v_Eb_E[0].Eb = Eb2, v_Eb_E[0].block = 2, v_Eb_E[0].block_x = 1, v_Eb_E[0].block_y = 0;
+            v_Eb_E[1].Eb = Eb3, v_Eb_E[1].block = 3, v_Eb_E[1].block_x = 0, v_Eb_E[0].block_y = 1;
+            v_Eb_E[2].Eb = Eb4, v_Eb_E[2].block = 4, v_Eb_E[2].block_x = 1, v_Eb_E[2].block_y = 1;
+
+            //排序: 排序完成后，v_Eb_E按Eb降序 
+            std::sort(v_Eb_E.begin(), v_Eb_E.end(), cmp_Eb_E);
+
+            //根据bit_msg嵌入信息：通过改变v_Eb_E[1]的值
+            std::vector<Eb_E> v_Eb_E_embeded = changeMiddleValue(v_Eb_E, bit_msg[counter]);
         }
-        if(counter == BITCAPACITY)
-            break;
+
+        counter++;
+
     }
 }
 
