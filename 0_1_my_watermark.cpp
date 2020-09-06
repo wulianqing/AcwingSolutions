@@ -90,7 +90,7 @@ std::vector<std::vector<double>> matrixMulti(std::vector<std::vector<double>> ma
 }
 
 //遍历蓝色分量矩阵 将8*8分块做dct变换(注意输入的矩阵的元素为char，即8位信息)
-std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> matrix_total){
+std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> matrix_total){
     
     int counter = 0; //只需要做最多BITCAPACITY个分块（最多嵌入BITCAPACITYbit）
 
@@ -138,7 +138,7 @@ std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> ma
             counter++;
 
             if(counter % 100 == 0)
-                std::cout << "decomposed block: " << counter << std::endl;
+                std::cout << "block: " << counter << std::endl;
             if (counter == BITCAPACITY)
                 return matrix_total;
         }
@@ -181,7 +181,7 @@ std::vector<Eb_E>  changeMiddleValue(std::vector<Eb_E> v_Eb_E, bool cur_bit_msg,
     return v_Eb_E;
 }
 
-std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> matrix_total, std::vector<bool> bit_msg){
+std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<double>> matrix_total, std::vector<bool> bit_msg){
     
     //遍历前BITCAPACITY个8*8矩阵，取左上4*4中的LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
     int counter = 0;
@@ -224,14 +224,25 @@ std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> m
 
             //根据bit_msg嵌入信息：通过改变v_Eb_E[1]的值
             std::vector<Eb_E> v_Eb_E_embeded = changeMiddleValue(v_Eb_E, bit_msg[counter]);
+            
+            //Eb改变了diff,需要将对应的分块3个像素也改变
+            int diff = v_Eb_E_embeded[1].Eb - v_Eb_E[1].Eb;
+            
+            //改变对应的像素
+            matrix_total[8 * i + 2 * v_Eb_E_embeded[1].block_x + 1][8 * j + 2 * v_Eb_E_embeded[1].block_y] += diff;
+            matrix_total[8 * i + 2 * v_Eb_E_embeded[1].block_x][8 * j + 2 * v_Eb_E_embeded[1].block_y + 1] += diff;
+            matrix_total[8 * i + 2 * v_Eb_E_embeded[1].block_x + 1][8 * j + 2 * v_Eb_E_embeded[1].block_y + 1] += diff;
+
+        
         }
 
         counter++;
-
+        
     }
+    return matrix_total;
 }
 
-
+//idct反变换: 跟dct过程一致
 
 
 
@@ -287,12 +298,18 @@ void doIt(char* img_path,char* msg_txt){
 
     //dct: vector<vector<char>>  ->  vector<vector<double>>
     std::vector<std::vector<double>> dct_matrix_blue = dct_2_stage(blue_matrix);
+    //嵌入完成(尚未idct)
+    std::vector<std::vector<double>> embeded_matrix_blue = embedMessage(dct_matrix_blue, bit_msg);
+    //idct: 过程与dct一致
+    std::vector<std::vector<double>> idct_embeded_matrix_blue = dct_2_stage(embeded_matrix_blue);
+
+
 
     std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
-    for (int i = 0; i < dct_matrix_blue.size();i++){
-        for (int j = 0; j < dct_matrix_blue[0].size();j++){
+    for (int i = 0; i < idct_embeded_matrix_blue.size();i++){
+        for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++){
             outfile.width(8);
-            outfile << dct_matrix_blue[i][j] << " ";
+            outfile << idct_embeded_matrix_blue[i][j] << " ";
         }
         outfile << std::endl;
     }
