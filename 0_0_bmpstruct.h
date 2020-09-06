@@ -395,4 +395,16 @@ public:
 };
 	
 }
+
+struct Eb_E{
+    double Eb;
+    int block;
+    int block_x;
+    int block_y;
+};
+
+bool cmp_Eb_E(Eb_E a,Eb_E b){
+    return a.Eb > b.Eb;
+}
+
 #endif 

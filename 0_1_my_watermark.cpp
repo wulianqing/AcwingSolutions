@@ -303,8 +303,14 @@ void doIt(char* img_path,char* msg_txt){
     //idct: 过程与dct一致
     std::vector<std::vector<double>> idct_embeded_matrix_blue = dct_2_stage(embeded_matrix_blue);
 
+    //将blue分量写回my_img
+    for (int i = 0; i < idct_embeded_matrix_blue.size();i++)
+        for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++)
+            my_img.__data[i * j].Blue = (unsigned char)idct_embeded_matrix_blue[i][j];
 
-
+    my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
+    
+    /*
     std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
     for (int i = 0; i < idct_embeded_matrix_blue.size();i++){
         for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++){
@@ -314,9 +320,9 @@ void doIt(char* img_path,char* msg_txt){
         outfile << std::endl;
     }
     outfile.close();
-    
+    */
 
-    //my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
+    
 }
 
 
