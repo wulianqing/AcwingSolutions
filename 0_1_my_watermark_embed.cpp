@@ -6,6 +6,7 @@
 #define PI 3.1415926535
 #define BITCAPACITY 4000
 #define SIZEPERGROUP 2
+
 //把嵌入信息char*转化为ASCII的比特信息(每个ASCII码8bit)
 std::vector<bool> charStartoBit(char *msg) {
     std::string s = msg;
@@ -154,7 +155,7 @@ std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> 
 
 //根据bit_msg嵌入信息：通过改变v_Eb_E[1]的值, 区间分0/1两组,每组有size_group个标尺,默认SIZEPERGROUP
 std::vector<Eb_E>  changeMiddleValue(std::vector<Eb_E> v_Eb_E, bool cur_bit_msg,int size_group = SIZEPERGROUP){
-    int region = (v_Eb_E[0].Eb - v_Eb_E[2].Eb) / (2 * size_group - 1);
+    double region = (v_Eb_E[0].Eb - v_Eb_E[2].Eb) / (2 * size_group - 1);
     
     //中间的Eb属于pos_region区间 (0 ~ 2 * size_group - 1)
     int pos_region = (v_Eb_E[1].Eb - v_Eb_E[2].Eb) / region;
@@ -186,6 +187,8 @@ std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<double>>
     //遍历前BITCAPACITY个8*8矩阵，取左上4*4中的LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
     int counter = 0;
     for (int i = 0; 8 * i + 7 < matrix_total.size(); i++){
+        if(counter == BITCAPACITY)
+                break;
         for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
             //只嵌入前BITCAPACITY个分块
             if(counter == BITCAPACITY)
@@ -233,10 +236,10 @@ std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<double>>
             matrix_total[8 * i + 2 * v_Eb_E_embeded[1].block_x][8 * j + 2 * v_Eb_E_embeded[1].block_y + 1] += diff;
             matrix_total[8 * i + 2 * v_Eb_E_embeded[1].block_x + 1][8 * j + 2 * v_Eb_E_embeded[1].block_y + 1] += diff;
 
-        
+            counter++;
         }
 
-        counter++;
+        //counter++;
         
     }
     return matrix_total;

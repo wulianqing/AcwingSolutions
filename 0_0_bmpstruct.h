@@ -5,6 +5,9 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
+
+
+
 namespace bmp
 {
 typedef struct tagBMPHEADER{
@@ -406,5 +409,7 @@ struct Eb_E{
 bool cmp_Eb_E(Eb_E a,Eb_E b){
     return a.Eb > b.Eb;
 }
+
+
 
 #endif 
