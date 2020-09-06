@@ -5,7 +5,7 @@
 #include <algorithm>
 #define PI 3.1415926535
 #define BITCAPACITY 4000
-#define MILESTONEPERGROUP 2
+#define SIZEPERGROUP 2
 //把嵌入信息char*转化为ASCII的比特信息(每个ASCII码8bit)
 std::vector<bool> charStartoBit(char *msg) {
     std::string s = msg;
@@ -152,9 +152,33 @@ std::vector<std::vector<double>> dct_2_stage(std::vector<std::vector<double>> ma
 //改变E2对应2*2矩阵的值
 
 
-//根据bit_msg嵌入信息：通过改变v_Eb_E[1]的值
-std::vector<Eb_E> changeMiddleValue(std::vector<Eb_E> v_Eb_E, bool cur_bit_msg){
+//根据bit_msg嵌入信息：通过改变v_Eb_E[1]的值, 区间分0/1两组,每组有size_group个标尺,默认SIZEPERGROUP
+std::vector<Eb_E>  changeMiddleValue(std::vector<Eb_E> v_Eb_E, bool cur_bit_msg,int size_group = SIZEPERGROUP){
+    int region = (v_Eb_E[0].Eb - v_Eb_E[2].Eb) / (2 * size_group - 1);
     
+    //中间的Eb属于pos_region区间 (0 ~ 2 * size_group - 1)
+    int pos_region = (v_Eb_E[1].Eb - v_Eb_E[2].Eb) / region;
+
+    //根据嵌入信息是0 / 1, 分情况
+    //奇数:1改成左标尺,0改成右标尺 (奇:1左0右)
+    if(pos_region % 2 == 1){
+        //嵌入1
+        if(cur_bit_msg == 1)
+            v_Eb_E[1].Eb = v_Eb_E[2].Eb + pos_region * region;
+        //嵌入0
+        else
+            v_Eb_E[1].Eb = v_Eb_E[2].Eb + (pos_region + 1) * region;
+    }
+    //偶数:1右0左
+    else{
+        //嵌入1
+        if(cur_bit_msg == 1)
+            v_Eb_E[1].Eb = v_Eb_E[2].Eb + (pos_region + 1) * region;
+        //嵌入0
+        else
+            v_Eb_E[1].Eb = v_Eb_E[2].Eb + pos_region * region;
+    }
+    return v_Eb_E;
 }
 
 std::vector<std::vector<double>> embedMessage(std::vector<std::vector<double>> matrix_total, std::vector<bool> bit_msg){
