@@ -105,7 +105,7 @@ std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> 
             counter++;
 
             if(counter % 100 == 0)
-                std::cout << "block: " << counter << std::endl;
+                //std::cout << "block: " << counter << std::endl;
             if (counter == BITCAPACITY)
                 return matrix_total;
         }
