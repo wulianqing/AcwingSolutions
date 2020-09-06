@@ -223,6 +223,9 @@ void doIt(char* img_path){
 
     //提取过程
     std::vector<bool> bit_msg = extractBitMessage(dct_matrix_blue);
+    for (int i = 0; i < 64;i++)
+        std::cout << bit_msg[i]<<' ';
+    std::cout << std::endl;
     std::string str_msg = vectorboolToString(bit_msg);
 
     std::cout << str_msg << std::endl;

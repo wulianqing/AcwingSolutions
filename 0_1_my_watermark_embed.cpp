@@ -355,6 +355,9 @@ void doIt(char* img_path,char* msg_txt){
     //将重复滚动的文本水印信息转化是ASCII的比特信息
     std::vector<bool> bit_msg = charStartoBit(c_enlarged_msg_txt);
     reverseBit(bit_msg);
+    for (int i = 0;i< 64;i++)
+        std::cout << bit_msg[i] << ' ';
+    std::cout << std::endl;
 
     //将__data的蓝色分量转入matrix
     std::vector<std::vector<double>> blue_matrix(my_img.height, std::vector<double>(my_img.width, 0));
@@ -400,7 +403,7 @@ void doIt(char* img_path,char* msg_txt){
             my_img.__data[i * j].Blue = (unsigned char)idct_embeded_matrix_blue[i][j];
 
     my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
-    
+
     /*
     std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
     for (int i = 0; i < idct_embeded_matrix_blue.size();i++){
