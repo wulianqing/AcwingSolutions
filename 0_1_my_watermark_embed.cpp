@@ -91,7 +91,7 @@ std::vector<std::vector<double>> matrixMulti(std::vector<std::vector<double>> ma
 }
 
 //遍历蓝色分量矩阵 将8*8分块做dct变换(注意输入的矩阵的元素为char，即8位信息)
-std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> matrix_total){
+const std::vector<std::vector<double>> &  dct_2_stage(std::vector<std::vector<double>> & matrix_total){
     
     int counter = 0; //只需要做最多BITCAPACITY个分块（最多嵌入BITCAPACITYbit）
 
@@ -129,22 +129,76 @@ std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> 
             //4*4写入8*8左上角 matrix_xx_4 -> matrix_y_8
             for (int k = 0; k < 4;k++)
                 for (int l = 0; l < 4;l++)
-                    matrix_y_8[k][l] = matrix_xx_4[k][l];
+                    matrix_y_8[k][l] = matrix_yy_4[k][l];
 
             //8*8分块写回总矩阵 matrix_y_8 -> matrix_sum
             for (int k = 0; k < 8;k++)
                 for (int l = 0; l < 8;l++)
-                    matrix_total[8 * i + k][8 * j + l] = matrix_x_8[k][l];
+                    matrix_total[8 * i + k][8 * j + l] = matrix_y_8[k][l];
 
             counter++;
 
             if(counter % 100 == 0)
-                std::cout << "block: " << counter << std::endl;
+                //std::cout << "block: " << counter << std::endl;
             if (counter == BITCAPACITY)
                 return matrix_total;
         }
     return matrix_total;
 }
+
+const std::vector<std::vector<double>> & idct_2_stage(std::vector<std::vector<double>> & matrix_total){
+    
+    int counter = 0; //只需要做最多BITCAPACITY个分块（最多嵌入BITCAPACITYbit）
+
+    for (int i = 0; 8 * i + 7 < matrix_total.size(); i++)
+        for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
+            //matrix_sum[i][j]指的是某8*8的左上角
+            //取 4 * 4 左上角 低频 matrix_y_8[i][j] 
+            std::vector<std::vector<double>> matrix_xx_4(4, std::vector<double>(4, 0));//新建4*4初始矩阵
+            //拷贝数据：4 * 4矩阵
+            for (int k = 0; k < 4;k++)
+                for (int l = 0; l < 4;l++)
+                    matrix_xx_4[k][l] = matrix_total[k][l];
+
+            //dct二级分解：4 * 4
+            //二级分解完成的矩阵: matrix_yy_4
+            std::vector<std::vector<double>> matrix_a_4 = createMatrixA(4);
+            std::vector<std::vector<double>> matrix_a_t_4 = createMatrixAT(matrix_a_4);
+            std::vector<std::vector<double>> matrix_yy_4 = matrixMulti(matrixMulti(matrix_a_t_4, matrix_xx_4), matrix_a_4);
+            
+            //4*4写入8*8左上角 matrix_xx_4 -> matrix_y_8
+            for (int k = 0; k < 4;k++)
+                for (int l = 0; l < 4;l++)
+                    matrix_total[k][l] = matrix_yy_4[k][l];
+
+            //8*8dct变换中 内嵌4*4
+            std::vector<std::vector<double>> matrix_x_8(8, std::vector<double>(8, 0));//新建8*8初始矩阵
+            //拷贝数据：8 * 8矩阵
+            for (int k = 0; k < 8;k++)
+                for (int l = 0; l < 8;l++)
+                    matrix_x_8[k][l] = matrix_total[8 * i + k][8 * j + l];
+
+            //dct一级分解：8 * 8
+            //一级分解完成的矩阵:matrix_y_8
+            std::vector<std::vector<double>> matrix_a_8 = createMatrixA(8);
+            std::vector<std::vector<double>> matrix_a_t_8 = createMatrixAT(matrix_a_8);
+            std::vector<std::vector<double>> matrix_y_8 = matrixMulti(matrixMulti(matrix_a_t_8, matrix_x_8), matrix_a_8);
+
+            //8*8分块写回总矩阵 matrix_y_8 -> matrix_sum
+            for (int k = 0; k < 8;k++)
+                for (int l = 0; l < 8;l++)
+                    matrix_total[8 * i + k][8 * j + l] = matrix_y_8[k][l];
+                    
+            counter++;
+
+            if(counter % 100 == 0)
+                //std::cout << "block: " << counter << std::endl;
+            if (counter == BITCAPACITY)
+                return matrix_total;
+        }
+    return matrix_total;
+}
+
 
 //嵌入信息：遍历前4000个8*8分块，取左上4*4中LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
 //计算Eb2,Eb3,Eb4
@@ -238,16 +292,22 @@ std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<double>>
 
             counter++;
         }
-
         //counter++;
-        
     }
     return matrix_total;
 }
 
 //idct反变换: 跟dct过程一致
 
-
+void printFirstBlock_8_8(const std::vector<std::vector<double>> & matrix_total) {
+    for (int i = 0; i < 8;i++){
+        for (int j = 0; j < 8;j++){
+            std::cout.width(8);
+            std::cout << matrix_total[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
 
 //执行函数
@@ -299,12 +359,32 @@ void doIt(char* img_path,char* msg_txt){
         //std::cout << std::endl;
     }
 
+    //测试第一个8*8 矩阵
+    std::cout << "Blue matrix:" << std::endl;
+    printFirstBlock_8_8(blue_matrix);
+
     //dct: vector<vector<char>>  ->  vector<vector<double>>
     std::vector<std::vector<double>> dct_matrix_blue = dct_2_stage(blue_matrix);
+
+    //测试第一个8*8 矩阵
+    std::cout << "After dct_2_stage():" << std::endl;
+    printFirstBlock_8_8(dct_matrix_blue);
+
+
     //嵌入完成(尚未idct)
     std::vector<std::vector<double>> embeded_matrix_blue = embedMessage(dct_matrix_blue, bit_msg);
-    //idct: 过程与dct一致
-    std::vector<std::vector<double>> idct_embeded_matrix_blue = dct_2_stage(embeded_matrix_blue);
+
+    //测试第一个8*8 矩阵
+    std::cout << "embeded after dct:" << std::endl;
+    printFirstBlock_8_8(embeded_matrix_blue);
+
+
+    //idct
+    std::vector<std::vector<double>> idct_embeded_matrix_blue = idct_2_stage(embeded_matrix_blue);
+
+    //测试第一个8*8 矩阵
+    std::cout << "idct embeded:" << std::endl;
+    printFirstBlock_8_8(idct_embeded_matrix_blue);
 
     //将blue分量写回my_img
     for (int i = 0; i < idct_embeded_matrix_blue.size();i++)

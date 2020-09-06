@@ -118,9 +118,7 @@ std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> 
 //排序Eb_big,Eb_small,Eb_middle
 //根据Eb_middle的值算出嵌入的是0/1
 //存入vector<bool>
-//vector<bool> -> vector<char>
-//vector<char> -> string
-std::vector<bool> extractMessage(std::vector<std::vector<double>> matrix_total){
+std::vector<bool> extractBitMessage(std::vector<std::vector<double>> matrix_total){
     int counter = 0;
     std::vector<bool> bit_msg;
     for (int i = 0; i * 8 + 7 < matrix_total.size(); i++)
@@ -178,6 +176,25 @@ std::vector<bool> extractMessage(std::vector<std::vector<double>> matrix_total){
     return bit_msg;
 }
 
+//vector<bool> -> string
+std::string vectorboolToString(std::vector<bool> bit_msg){
+    std::string str_msg = "";
+    //每8位合成一个char
+    for (int i = 0; i * 8 + 7 < bit_msg.size();i++){
+        char cur_c = 0;
+        for (int j = 0; j < 8;j++){
+            cur_c <<= 1;
+            if(bit_msg[8 * i + j] == 1)
+                cur_c |= 1;    
+        }
+        str_msg = str_msg + cur_c;
+    }
+    return str_msg;
+}
+
+
+
+
 //执行函数
 void doIt(char* img_path){
     //取得bitmap数据__data
@@ -205,10 +222,13 @@ void doIt(char* img_path){
     std::vector<std::vector<double>> dct_matrix_blue = dct_2_stage(blue_matrix);
 
     //提取过程
-    extractMessage(dct_matrix_blue);
+    std::vector<bool> bit_msg = extractBitMessage(dct_matrix_blue);
+    std::string str_msg = vectorboolToString(bit_msg);
 
+    std::cout << str_msg << std::endl;
+    //测试用例:“To me...” 对应ascII:
+    //T:84(01010100) o:111(01101111) m:109 e:101
 }
-
 
 int main(){
     //读图像
