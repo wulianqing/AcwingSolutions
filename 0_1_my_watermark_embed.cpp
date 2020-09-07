@@ -37,7 +37,9 @@ std::vector<bool> charStartoBit(char *msg) {
 
 //ASCII比特信息是按从低位到高位存储的 需要做翻转
 std::vector<bool> &  reverseBit(std::vector<bool> & bit_msg){
-    reverse(bit_msg.begin(), bit_msg.end());
+    for (int i = 0; 8 * i + 7 < bit_msg.size();i++){
+        reverse(bit_msg.begin() + 8 * i, bit_msg.begin() + 8 * (i+1));
+    } 
     return bit_msg;
 }
 
@@ -183,7 +185,7 @@ const std::vector<std::vector<double>> & idct_2_stage(std::vector<std::vector<do
                 for (int l = 0; l < 4;l++)
                     matrix_total[8 * i + k][8 * j + l] = matrix_yy_4[k][l];
 
-            if(counter == 0){
+            if(counter == 2){
                 std::cout << "idct after 4*4变换恢复:" << std::endl;
                 printFirstBlock_8_8(matrix_total);
                 std::cout << std::endl;
@@ -254,7 +256,7 @@ std::vector<Eb_E>  changeMiddleValue(std::vector<Eb_E> v_Eb_E, bool cur_bit_msg,
     return v_Eb_E;
 }
 
-const std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<double>> matrix_total, std::vector<bool> bit_msg){
+const std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<double>> matrix_total, std::vector<bool> bit_msg){ 
     
     //遍历前BITCAPACITY个8*8矩阵，取左上4*4中的LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
     int counter = 0;
@@ -290,8 +292,8 @@ const std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<do
 
             //Eb_E[0]~[2]：用以记录E均值与2*2分块对应关系
             std::vector<Eb_E> v_Eb_E(3);
-            v_Eb_E[0].Eb = Eb2, v_Eb_E[0].block = 2, v_Eb_E[0].block_x = 1, v_Eb_E[0].block_y = 0;
-            v_Eb_E[1].Eb = Eb3, v_Eb_E[1].block = 3, v_Eb_E[1].block_x = 0, v_Eb_E[0].block_y = 1;
+            v_Eb_E[0].Eb = Eb2, v_Eb_E[0].block = 2, v_Eb_E[0].block_x = 0, v_Eb_E[0].block_y = 1;
+            v_Eb_E[1].Eb = Eb3, v_Eb_E[1].block = 3, v_Eb_E[1].block_x = 1, v_Eb_E[1].block_y = 0;
             v_Eb_E[2].Eb = Eb4, v_Eb_E[2].block = 4, v_Eb_E[2].block_x = 1, v_Eb_E[2].block_y = 1;
 
             //排序: 排序完成后，v_Eb_E按Eb降序 
@@ -349,21 +351,31 @@ void doIt(char* img_path,char* msg_txt){
     std::string enlarged_msg_txt = enlargeMessage(msg_txt,std::min(max_embeded_capacity,BITCAPACITY));
     char *c_enlarged_msg_txt = const_cast<char *>(enlarged_msg_txt.c_str());
     //test msg
-    std::cout << "massage: " << msg_txt << std::endl;
-    //std::cout << "enlarged message: " << enlarged_msg_txt << std::endl;
+    std::cout << "massage: " << msg_txt << std::endl << std::endl;
+    std::cout << "enlarged message: " << enlarged_msg_txt << std::endl << std::endl;
 
     //将重复滚动的文本水印信息转化是ASCII的比特信息
     std::vector<bool> bit_msg = charStartoBit(c_enlarged_msg_txt);
+    
+    std::cout << "bit msg before reverse: " << std::endl;
+    for (int i = 0; i < 64; i++)
+        std::cout << bit_msg[i] << ' ';
+    std::cout << std::endl << std::endl;
+
+    
     reverseBit(bit_msg);
+
+    std::cout << "bit msg after reverse: " << std::endl;
     for (int i = 0;i< 64;i++)
         std::cout << bit_msg[i] << ' ';
     std::cout << std::endl;
+    
 
     //将__data的蓝色分量转入matrix
     std::vector<std::vector<double>> blue_matrix(my_img.height, std::vector<double>(my_img.width, 0));
     for (int i = 0; i < my_img.height;i++){
         for (int j = 0; j < my_img.width;j++){
-            blue_matrix[i][j] = (double)my_img.__data[i * j].Blue;
+            blue_matrix[i][j] = (double)my_img.__data[i * my_img.width + j].Blue;
             //std::cout << blue_matrix[i][j] << " ";
         }
         //std::cout << std::endl;
@@ -376,7 +388,7 @@ void doIt(char* img_path,char* msg_txt){
     //dct: vector<vector<char>>  ->  vector<vector<double>>
     std::vector<std::vector<double>> dct_matrix_blue = dct_2_stage(blue_matrix);
 
-    //测试第一个8*8 矩阵
+    
     std::cout << "After dct_2_stage():" << std::endl;
     printFirstBlock_8_8(dct_matrix_blue);
     std::cout << std::endl;
@@ -399,8 +411,11 @@ void doIt(char* img_path,char* msg_txt){
 
     //将blue分量写回my_img
     for (int i = 0; i < idct_embeded_matrix_blue.size();i++)
-        for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++)
-            my_img.__data[i * j].Blue = (unsigned char)idct_embeded_matrix_blue[i][j];
+        for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++){
+            //my_img.__data[i * j].Blue = (unsigned char)
+            int int_idct_embeded_matrix_blue = (int)idct_embeded_matrix_blue[i][j];
+            my_img.__data[i * idct_embeded_matrix_blue[0].size() + j].Blue = int_idct_embeded_matrix_blue;
+        }
 
     my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
 

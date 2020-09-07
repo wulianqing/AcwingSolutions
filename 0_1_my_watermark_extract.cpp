@@ -9,6 +9,17 @@
 #define SIZEPERGROUP 2
 
 
+
+void printFirstBlock_8_8(const std::vector<std::vector<double>> & matrix_total) {
+    for (int i = 0; i < 8;i++){
+        for (int j = 0; j < 8;j++){
+            std::cout.width(8);
+            std::cout << matrix_total[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 //dct变换：生成辅助矩阵A (参数：4或8，表示4*4 和 8*8)
 std::vector<std::vector<double>> createMatrixA(int num){
     if(!(num == 4 || num == 8))
@@ -57,7 +68,7 @@ std::vector<std::vector<double>> matrixMulti(std::vector<std::vector<double>> ma
 }
 
 //遍历蓝色分量矩阵 将8*8分块做dct变换(注意输入的矩阵的元素为char，即8位信息)
-std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> matrix_total){
+const std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> & matrix_total){
     
     int counter = 0; //只需要做最多BITCAPACITY个分块（最多嵌入BITCAPACITYbit）
 
@@ -95,12 +106,12 @@ std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<double>> 
             //4*4写入8*8左上角 matrix_xx_4 -> matrix_y_8
             for (int k = 0; k < 4;k++)
                 for (int l = 0; l < 4;l++)
-                    matrix_y_8[k][l] = matrix_xx_4[k][l];
+                    matrix_y_8[k][l] = matrix_yy_4[k][l];
 
             //8*8分块写回总矩阵 matrix_y_8 -> matrix_sum
             for (int k = 0; k < 8;k++)
                 for (int l = 0; l < 8;l++)
-                    matrix_total[8 * i + k][8 * j + l] = matrix_x_8[k][l];
+                    matrix_total[8 * i + k][8 * j + l] = matrix_y_8[k][l];
 
             counter++;
 
@@ -217,9 +228,19 @@ void doIt(char* img_path){
         }
         //std::cout << std::endl;
     }
+    
+    std::cout << "Blue matrix: " << std::endl;
+    printFirstBlock_8_8(blue_matrix);
+    std::cout << std::endl;
+
 
     //dct: vector<vector<char>>  ->  vector<vector<double>>
     std::vector<std::vector<double>> dct_matrix_blue = dct_2_stage(blue_matrix);
+    
+    std::cout << "After dct_2_stage():" << std::endl;
+    printFirstBlock_8_8(dct_matrix_blue);
+    std::cout << std::endl;
+
 
     //提取过程
     std::vector<bool> bit_msg = extractBitMessage(dct_matrix_blue);
