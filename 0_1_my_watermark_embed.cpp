@@ -7,7 +7,14 @@
 #define BITCAPACITY 4000
 #define SIZEPERGROUP 2
 
-
+void editFirstBlock_8_8(std::vector<std::vector<double>> & matrix_total) {
+    for (int i = 0; i < 8;i++){
+        for (int j = 0; j < 8;j++){
+            matrix_total[i][j] = 10;
+        }
+        std::cout << std::endl;
+    }
+}
 
 void printFirstBlock_8_8(const std::vector<std::vector<double>> & matrix_total) {
     for (int i = 0; i < 8;i++){
@@ -328,7 +335,8 @@ void doIt(char* img_path,char* msg_txt){
     std::cout << "image height: " << my_img.height << std::endl
               << "image width: " << my_img.width << std::endl
               << "image bits: " << my_img.info.biBitCount << std::endl;
-    
+
+
     //水印信息(图像)
     /*
     bmp::bitbmp my_msg_bmp;
@@ -381,6 +389,18 @@ void doIt(char* img_path,char* msg_txt){
         //std::cout << std::endl;
     }
 
+    //test: 输出蓝分量文件
+    std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
+    for (int i = 0; i < blue_matrix.size();i++){
+        for (int j = 0; j < blue_matrix[0].size();j++){
+            outfile.width(8);
+            outfile << blue_matrix[i][j] << " ";
+        }
+        outfile << std::endl;
+    }
+    outfile.close();
+
+
     //测试第一个8*8 矩阵
     std::cout << "Blue matrix:" << std::endl;
     printFirstBlock_8_8(blue_matrix);
@@ -409,27 +429,30 @@ void doIt(char* img_path,char* msg_txt){
     printFirstBlock_8_8(idct_embeded_matrix_blue);
     std::cout << std::endl;
 
+    
+
+    std::cout << "wirte back: " << std::endl;
     //将blue分量写回my_img
-    for (int i = 0; i < idct_embeded_matrix_blue.size();i++)
-        for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++){
+    for (int i = 0; i < my_img.height;i++)
+        for (int j = 0; j < my_img.width;j++){
             //my_img.__data[i * j].Blue = (unsigned char)
             int int_idct_embeded_matrix_blue = (int)idct_embeded_matrix_blue[i][j];
-            my_img.__data[i * idct_embeded_matrix_blue[0].size() + j].Blue = int_idct_embeded_matrix_blue;
+            //my_img.__data[i * idct_embeded_matrix_blue[0].size() + j].Blue = int_idct_embeded_matrix_blue;
+            //blue_matrix[i][j] = (double)my_img.__data[i * my_img.width + j].Blue;
+            my_img.__data[i * my_img.width + j].Blue = int_idct_embeded_matrix_blue;
+            if(i >= 0 && i < 8 && j >= 0 && j < 8){
+                std::cout.width(8);
+                std::cout << int_idct_embeded_matrix_blue;
+            }
+            if(i < 8 && j == 7)
+                std::cout << std::endl;
         }
 
     my_img.save("/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp");
 
-    /*
-    std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
-    for (int i = 0; i < idct_embeded_matrix_blue.size();i++){
-        for (int j = 0; j < idct_embeded_matrix_blue[0].size();j++){
-            outfile.width(8);
-            outfile << idct_embeded_matrix_blue[i][j] << " ";
-        }
-        outfile << std::endl;
-    }
-    outfile.close();
-    */
+    
+    
+    
 
     
 }
@@ -439,7 +462,7 @@ void doIt(char* img_path,char* msg_txt){
 int main(){
     //读图像 读文本
     char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena.bmp";
-    char *msg_txt = "To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world";
+    char *msg_txt = "To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes.";
     //To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world
     //std::cout << "输入图像路径 和 嵌入文本: " << std::endl;
     //std::cin >> img_path >> msg_txt;

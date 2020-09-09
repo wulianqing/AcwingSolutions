@@ -223,7 +223,8 @@ void doIt(char* img_path){
     std::vector<std::vector<double>> blue_matrix(my_img.height, std::vector<double>(my_img.width, 0));
     for (int i = 0; i < my_img.height;i++){
         for (int j = 0; j < my_img.width;j++){
-            blue_matrix[i][j] = (double)my_img.__data[i * j].Blue;
+            blue_matrix[i][j] = (double)my_img.__data[i * my_img.width + j].Blue;
+            
             //std::cout << blue_matrix[i][j] << " ";
         }
         //std::cout << std::endl;
