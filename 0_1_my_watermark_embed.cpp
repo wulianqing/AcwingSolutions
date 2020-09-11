@@ -17,8 +17,8 @@ void editFirstBlock_8_8(std::vector<std::vector<double>> & matrix_total) {
 }
 
 void printFirstBlock_8_8(const std::vector<std::vector<double>> & matrix_total) {
-    for (int i = 0; i < 8;i++){
-        for (int j = 0; j < 8;j++){
+    for (int i = 30; i < 38;i++){
+        for (int j = 30; j < 38;j++){
             std::cout.width(8);
             std::cout << matrix_total[i][j] << " ";
         }
@@ -267,7 +267,9 @@ const std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<do
     
     //遍历前BITCAPACITY个8*8矩阵，取左上4*4中的LH,HL,HH三个2*2的分块，分别称为b2,b3,b4
     int counter = 0;
-    for (int i = 0; 8 * i + 7 < matrix_total.size(); i++){
+
+    //测试修改: 不要从[0][0]开始嵌入,从[30][0]开始
+    for (int i = 30; 8 * i + 7 < matrix_total.size(); i++){
         if(counter == BITCAPACITY)
                 break;
         for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
@@ -440,11 +442,11 @@ void doIt(char* img_path,char* msg_txt){
             //my_img.__data[i * idct_embeded_matrix_blue[0].size() + j].Blue = int_idct_embeded_matrix_blue;
             //blue_matrix[i][j] = (double)my_img.__data[i * my_img.width + j].Blue;
             my_img.__data[i * my_img.width + j].Blue = int_idct_embeded_matrix_blue;
-            if(i >= 0 && i < 8 && j >= 0 && j < 8){
+            if(i >= 30 && i < 38 && j >= 30 && j < 38){
                 std::cout.width(8);
                 std::cout << int_idct_embeded_matrix_blue;
             }
-            if(i < 8 && j == 7)
+            if(i >= 30 && i < 38 && j == 7)
                 std::cout << std::endl;
         }
 

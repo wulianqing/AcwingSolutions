@@ -11,8 +11,8 @@
 
 
 void printFirstBlock_8_8(const std::vector<std::vector<double>> & matrix_total) {
-    for (int i = 0; i < 8;i++){
-        for (int j = 0; j < 8;j++){
+    for (int i = 30; i < 38;i++){
+        for (int j = 30; j < 38;j++){
             std::cout.width(8);
             std::cout << matrix_total[i][j] << " ";
         }
@@ -132,7 +132,7 @@ const std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<dou
 std::vector<bool> extractBitMessage(std::vector<std::vector<double>> matrix_total){
     int counter = 0;
     std::vector<bool> bit_msg;
-    for (int i = 0; i * 8 + 7 < matrix_total.size(); i++)
+    for (int i = 30; i * 8 + 7 < matrix_total.size(); i++)
     {
         if(counter == BITCAPACITY)
                 break;
@@ -257,6 +257,6 @@ void doIt(char* img_path){
 
 int main(){
     //读图像
-    char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp";
+    char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena_scan_30.bmp";
     doIt(img_path);
 }
