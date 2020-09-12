@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define PI 3.1415926535
-#define BITCAPACITY 4000
+#define BITCAPACITY 2400
 #define SIZEPERGROUP 2
 
 
@@ -132,11 +132,11 @@ const std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<dou
 std::vector<bool> extractBitMessage(std::vector<std::vector<double>> matrix_total){
     int counter = 0;
     std::vector<bool> bit_msg;
-    for (int i = 30; i * 8 + 7 < matrix_total.size(); i++)
+    for (int i = 5; i * 8 + 7 < matrix_total.size(); i++)
     {
         if(counter == BITCAPACITY)
                 break;
-        for (int j = 0; j * 8 + 7 < matrix_total[0].size();j++){
+        for (int j = 3; j * 8 + 7 < matrix_total[0].size() - 3 * 8;j++){
             //只嵌入前BITCAPACITY个分块
             if(counter == BITCAPACITY)
                 break;
@@ -257,6 +257,10 @@ void doIt(char* img_path){
 
 int main(){
     //读图像
-    char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena_scan_30.bmp";
+
+    //char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena_scan_30.bmp";
+    
+    //test.bmp
+    char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/test.bmp";
     doIt(img_path);
 }

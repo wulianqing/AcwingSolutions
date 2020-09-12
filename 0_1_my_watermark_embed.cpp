@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #define PI 3.1415926535
-#define BITCAPACITY 4000
+#define BITCAPACITY 2400
 #define SIZEPERGROUP 2
 
 void editFirstBlock_8_8(std::vector<std::vector<double>> & matrix_total) {
@@ -269,10 +269,10 @@ const std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<do
     int counter = 0;
 
     //测试修改: 不要从[0][0]开始嵌入,从[30][0]开始
-    for (int i = 30; 8 * i + 7 < matrix_total.size(); i++){
+    for (int i = 5; 8 * i + 7 < matrix_total.size(); i++){
         if(counter == BITCAPACITY)
                 break;
-        for (int j = 0; 8 * j + 7 < matrix_total[0].size();j++){
+        for (int j = 3; 8 * j + 7 < matrix_total[0].size() - 3 * 8;j++){
             //只嵌入前BITCAPACITY个分块
             if(counter == BITCAPACITY)
                 break;
@@ -464,7 +464,7 @@ void doIt(char* img_path,char* msg_txt){
 int main(){
     //读图像 读文本
     char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena.bmp";
-    char *msg_txt = "To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes.";
+    char *msg_txt = "WuLq18031211516";
     //To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world
     //std::cout << "输入图像路径 和 嵌入文本: " << std::endl;
     //std::cin >> img_path >> msg_txt;
