@@ -7,6 +7,7 @@
 #define PI 3.1415926535
 #define BITCAPACITY 3840
 #define SIZEPERGROUP 2
+#define INFORMATINOLENGTH 15
 
 
 
@@ -129,7 +130,7 @@ const std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<dou
 //排序Eb_big,Eb_small,Eb_middle
 //根据Eb_middle的值算出嵌入的是0/1
 //存入vector<bool>
-std::vector<bool> extractBitMessage(std::vector<std::vector<double>> matrix_total){
+std::vector<bool>  extractBitMessage(std::vector<std::vector<double>> matrix_total){
     int counter = 0;
     std::vector<bool> bit_msg;
     for (int i = 2; 8 * (i + 2) + 7 < matrix_total.size(); i++)
@@ -185,6 +186,33 @@ std::vector<bool> extractBitMessage(std::vector<std::vector<double>> matrix_tota
         }
     }
     return bit_msg;
+}
+
+//去重复 并 修正
+std::vector<bool>  deduplicatedBitMessage(const std::vector<bool> & bit_msg){
+    std::vector<bool> deduplicated_bit_msg = std::vector<bool>(120);
+    for (int i = 0; i < 120; i++)
+    {
+
+        int counter_0 = 0;
+        int counter_1 = 0;
+
+        for (int j = 0; j < bit_msg.size()/120; j++){
+            if(bit_msg[120 * j + i] == 1)
+                counter_1++;
+            else
+                counter_0++;
+            if(counter_0 == 16){
+                deduplicated_bit_msg[i] = 0;
+                break;
+            }
+            if(counter_1 == 16){
+                deduplicated_bit_msg[i] = 1;
+                break;
+            }
+        }
+    }
+    return deduplicated_bit_msg;
 }
 
 //vector<bool> -> string
@@ -245,12 +273,31 @@ void doIt(char* img_path){
 
     //提取过程
     std::vector<bool> bit_msg = extractBitMessage(dct_matrix_blue);
-    for (int i = 0; i < 64;i++)
+    std::cout << "0~63 bit msg: " << std::endl;
+    for (int i = 0; i < 64; i++)
         std::cout << bit_msg[i]<<' ';
-    std::cout << std::endl;
-    std::string str_msg = vectorboolToString(bit_msg);
+    std::cout << std::endl << std::endl;
 
-    std::cout << str_msg << std::endl;
+
+    std::cout << "120~183(64bit) bit msg: " << std::endl;
+    for (int i = 120; i < 240; i++)
+        std::cout << bit_msg[i]<<' ';
+    std::cout << std::endl << std::endl;
+
+    //将bit_msg转为120位0/1信息
+    std::vector<bool> deduplicated_bit_msg = deduplicatedBitMessage(bit_msg);
+    std::cout << "dedeplicated bit msg: " << std::endl;
+    for (int i = 0; i < 64;i++)
+        std::cout << deduplicated_bit_msg[i]<<' ';
+    std::cout << std::endl << std::endl;
+
+    //将120位0/1信息转为最终信息
+    std::string str_msg = vectorboolToString(deduplicated_bit_msg);
+    
+
+   //std::string str_msg = vectorboolToString(bit_msg);
+
+    std::cout << "extracted message:" << std::endl << str_msg << std::endl << std::endl;
     //测试用例:“To me...” 对应ascII:
     //T:84(01010100) o:111(01101111) m:109 e:101
 }
