@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #define PI 3.1415926535
-#define BITCAPACITY 2400
+#define BITCAPACITY 3840
 #define SIZEPERGROUP 2
 
 void editFirstBlock_8_8(std::vector<std::vector<double>> & matrix_total) {
@@ -269,10 +269,10 @@ const std::vector<std::vector<double>> & embedMessage(std::vector<std::vector<do
     int counter = 0;
 
     //测试修改: 不要从[0][0]开始嵌入,从[30][0]开始
-    for (int i = 5; 8 * i + 7 < matrix_total.size(); i++){
+    for (int i = 2; 8 * (i + 2) + 7 < matrix_total.size(); i++){
         if(counter == BITCAPACITY)
                 break;
-        for (int j = 3; 8 * j + 7 < matrix_total[0].size() - 3 * 8;j++){
+        for (int j = 2; 8 * (j + 2) + 7 < matrix_total[0].size();j++){
             //只嵌入前BITCAPACITY个分块
             if(counter == BITCAPACITY)
                 break;
@@ -348,8 +348,8 @@ void doIt(char* img_path,char* msg_txt){
               << "image bits: " << my_msg_bmp.info.biBitCount << std::endl;
     */
 
-    //计算最大嵌入容量
-    int max_embeded_capacity = my_img.height / 8 * my_img.width / 8;
+    //计算最大嵌入容量:减掉边框 上下左右各2各8*8分块的大小
+    int max_embeded_capacity = (my_img.height / 8 - 4) * (my_img.width / 8 - 4);
 
     //判断：水印是否超过最大嵌入容量
     if(max_embeded_capacity < strlen(msg_txt) * 8){
@@ -361,7 +361,7 @@ void doIt(char* img_path,char* msg_txt){
     std::string enlarged_msg_txt = enlargeMessage(msg_txt,std::min(max_embeded_capacity,BITCAPACITY));
     char *c_enlarged_msg_txt = const_cast<char *>(enlarged_msg_txt.c_str());
     //test msg
-    std::cout << "massage: " << msg_txt << std::endl << std::endl;
+    std::cout << "message: " << msg_txt << std::endl << std::endl;
     std::cout << "enlarged message: " << enlarged_msg_txt << std::endl << std::endl;
 
     //将重复滚动的文本水印信息转化是ASCII的比特信息

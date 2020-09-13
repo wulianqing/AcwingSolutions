@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define PI 3.1415926535
-#define BITCAPACITY 2400
+#define BITCAPACITY 3840
 #define SIZEPERGROUP 2
 
 
@@ -132,11 +132,11 @@ const std::vector<std::vector<double>> & dct_2_stage(std::vector<std::vector<dou
 std::vector<bool> extractBitMessage(std::vector<std::vector<double>> matrix_total){
     int counter = 0;
     std::vector<bool> bit_msg;
-    for (int i = 5; i * 8 + 7 < matrix_total.size(); i++)
+    for (int i = 2; 8 * (i + 2) + 7 < matrix_total.size(); i++)
     {
         if(counter == BITCAPACITY)
                 break;
-        for (int j = 3; j * 8 + 7 < matrix_total[0].size() - 3 * 8;j++){
+        for (int j = 2; 8 * (j + 2) + 7 < matrix_total[0].size();j++){
             //只嵌入前BITCAPACITY个分块
             if(counter == BITCAPACITY)
                 break;
