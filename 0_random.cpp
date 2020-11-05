@@ -8,3 +8,8 @@ int main(){
         cout << rand() % 100 << endl;
     return 0;
 }
+
+
+if __name__ == '__main__':
+    
+    

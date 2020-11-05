@@ -366,20 +366,20 @@ void doIt(char* img_path,char* msg_txt){
 
     //将重复滚动的文本水印信息转化是ASCII的比特信息
     std::vector<bool> bit_msg = charStartoBit(c_enlarged_msg_txt);
-    
+    /*
     std::cout << "bit msg before reverse: " << std::endl;
     for (int i = 0; i < 64; i++)
         std::cout << bit_msg[i] << ' ';
     std::cout << std::endl << std::endl;
 
-    
+    */
     reverseBit(bit_msg);
-
+    /*
     std::cout << "bit msg after reverse: " << std::endl;
     for (int i = 0;i< 64;i++)
         std::cout << bit_msg[i] << ' ';
     std::cout << std::endl;
-    
+    */
 
     //将__data的蓝色分量转入matrix
     std::vector<std::vector<double>> blue_matrix(my_img.height, std::vector<double>(my_img.width, 0));
@@ -392,6 +392,7 @@ void doIt(char* img_path,char* msg_txt){
     }
 
     //test: 输出蓝分量文件
+    /*
     std::ofstream outfile("/Users/wubaobao/Desktop/test_outfile.txt");
     for (int i = 0; i < blue_matrix.size();i++){
         for (int j = 0; j < blue_matrix[0].size();j++){
@@ -401,6 +402,7 @@ void doIt(char* img_path,char* msg_txt){
         outfile << std::endl;
     }
     outfile.close();
+    */
 
 
     //测试第一个8*8 矩阵
@@ -464,7 +466,7 @@ void doIt(char* img_path,char* msg_txt){
 int main(){
     //读图像 读文本
     char *img_path = "/Users/wubaobao/GoogleCloud-aaedu/Dropbox/ProjectCodeFolder/VSCode/AcwingSolutions/image/lena.bmp";
-    char *msg_txt = "WuLq18031211516";
+    char *msg_txt = "WuLQ18031211516";
     //To me, you are still nothing more than a little boy who is just like a hundred thousand other little boys. And I have no need of you. And you, on your part, have no need of me. To you, I am nothing more than a fox like a hundred thousand other foxes. But if you tame me, then we shall need each other. To me, you will be unique in all the world. To you, I shall be unique in all the world
     //std::cout << "输入图像路径 和 嵌入文本: " << std::endl;
     //std::cin >> img_path >> msg_txt;
